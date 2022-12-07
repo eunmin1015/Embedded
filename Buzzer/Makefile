@@ -1,6 +1,3 @@
-all : buzzer.h buzzer.c
-	arm-linux-gnueabi-gcc -c buzzer.c -o buzzer.o
-	arm-linux-gnueabi-ar rc libmyperi.a buzzer.o
 
 
 all : libperi.a

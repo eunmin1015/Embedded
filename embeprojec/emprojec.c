@@ -187,3 +187,32 @@ break;
   } 
   return 0;
      }
+
+int soccergame(void){
+
+	
+	bitmainfunc("축구사진.bmp");
+	text("GAME START", "	");
+
+	//랜덤 3방향중에 한방향을 정해준다
+		
+	gyroInit();
+	getGyro();
+	for(i=0; i<3; i++){
+	if(gyro[0]<왼쪽 && gyro[2]<왼쪽 && gyro[2]<왼쪽)
+		{bitmainfunc("ballleft.bmp");
+	else if(자리오 스코프 앞으로 움직이면)
+		{bitmainfunc("ballcenter.bmp");
+	else(자이로스코프 오른쪽으로 움직이면
+		{bitaminfunc("ballright.bmp"); //이거를 자이로 함수한에 넣어야되나 아니면 메인문에 넣어야되나
+	
+	//버튼을 눌러 골이 들어가게 만든다
+
+	if(랜덤방향과 지정방향이 같다)
+		FND에 -1점
+	else if(랜덤방향과 지정방향이 다르다)
+		FND에 +1점
+	}
+	text("Finish","	");
+	return 0;
+}
