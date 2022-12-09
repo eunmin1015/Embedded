@@ -8,31 +8,34 @@
 #include <sys/msg.h>
 #include <pthread.h>
 #include "touch.h"
-// first read input device
-#define INPUT_DEVICE_LIST "/dev/input/event" //실제 디바이스 드라이버 노드파일: 뒤에 숫자가 붙음., ex)/dev/input/event5
-#define PROBE_FILE "/proc/bus/input/devices" //PPT에 제시된 "이 파일을 까보면 event? 의 숫자를 알수 있다"는 바로 그 파일
-#define HAVE_TO_FIND_1 "N: Name=\"WaveShare WaveShare Touchscreen\"\n"
-#define HAVE_TO_FIND_2 "H: Handlers=mouse0 event"
 
-TOUCH_MSG_T A;
-int msgID, fd;
-char touchPath[200] = {0,};
-pthread_t touchTh_id;
 
-int probeTouchPath(char *newPath){
-	int returnValue = 0; //button에 해당하는 event#을 찾았나?
+#define INPUT_DEVICE_LIST  "/dev/input/event" //실제 디바이스 드라이버 노드파일: 뒤에 숫자가 붙음., ex)/dev/input/event5
+#define PROBE_FILE  "/proc/bus/input/devices" //PPT에 제시된 "이 파일을 까보면 event? 의 숫자를 알수 있다"는 바로 그 파일
+
+
+int probeTouchPath(char *newPath)
+{
+
+    int returnValue = 0; //button에 해당하는 event#을 찾았나?
 	int number = 0; //찾았다면 여기에 집어넣자
-	FILE *fp = fopen(PROBE_FILE,"rt");
-	while(!feof(fp)) {
-	char tmpStr[200]; //200자를 읽을 수 있게 버퍼
-	fgets(tmpStr,200,fp); //최대 200자를 읽어봄
-	//printf ("%s",tmpStr);
-	if (strcmp(tmpStr,HAVE_TO_FIND_1) == 0){
-		//printf("YES! I found!: %s\r\n", tmpStr);
-		returnValue = 1; //찾음
-	}
-	
-	if ((returnValue == 1) && (strncasecmp(tmpStr, HAVE_TO_FIND_2, strlen(HAVE_TO_FIND_2)) == 0) )
+
+#define HAVE_TO_FIND_1 "N: Name=\"WaveShare WS170120\"\n"
+#define HAVE_TO_FIND_2 "H: Handlers=mouse0 event"
+   
+    FILE *fp = fopen(PROBE_FILE,"rt");
+	while(!feof(fp)) 
+    { 
+        
+        char tmpStr[200]; //200자를 읽을 수 있게 버퍼
+	      fgets(tmpStr,200,fp); //최대 200자를 읽어봄
+	           //printf ("%s",tmpStr);
+	 if (strcmp(tmpStr,HAVE_TO_FIND_1) == 0){
+		printf("YES! I found!: %s\r\n", tmpStr);
+		returnValue = 1; //찾
+    }
+
+     if ((returnValue == 1) && (strncasecmp(tmpStr, HAVE_TO_FIND_2, strlen(HAVE_TO_FIND_2)) == 0) )
 	{
 	printf ("-->%s",tmpStr);
 	printf("\t%c\r\n",tmpStr[strlen(tmpStr)-3]);
@@ -40,87 +43,89 @@ int probeTouchPath(char *newPath){
 	//Ascii character '0'-'9' (0x30-0x39)
 	//to interger(0)
 	break;
-	}
-	}
-	fclose(fp);
-	if (returnValue == 1){
+    }
+    }
+
+
+    fclose(fp);
+	if (returnValue == 1)
 		sprintf (newPath,"%s%d",INPUT_DEVICE_LIST,number);
-	}
-	
 	return returnValue;
 }
 
-void touchThFunc(void)
+
+static pthread_t touchTh_id ;
+static int fd =0;
+static int msgID = 0;
+
+
+
+
+void touchThFunc(void* args)
 {   
-    int x = 0;
-    int y = 0;
-    A.messageNum = 1;
-    A.keyInput = 999;
+    
+    struct input_event stEvent;
+
+   // BUTTON_MSG_T sendMsg;
+   // sendMsg.messageNum = 1;
+   // sendMsg.keyInput = 999;
     printf("touch thread ready");
-	int readSize,inputIndex;
-	struct input_event stEvent;
 	while(1)
-	{
-	
-	readSize = read(fd, &stEvent , sizeof(stEvent));
-	if (readSize != sizeof(stEvent))
-	{
-	continue;
-	}
-	if (stEvent.type == EV_ABS)
-	{
-	    if (stEvent.code == ABS_MT_POSITION_X)
-	    {
-	        x = stEvent.value;
-	        printf("X:%d" , stEvent.value);
-	    }
-                else if (stEvent.code == ABS_MT_POSITION_Y)
-	    {
-	        y = stEvent.value;
-	        printf("Y:%d" , stEvent.value);
-	    }
-	}
-	else if ( (stEvent.type == EV_KEY) && (stEvent.code == BTN_TOUCH) )
-	{
-	    A.x = x;
-	    A.y = y;
-	    if (stEvent.value == 0)
-	    {	
-		A.pressed = 0;
-		printf("touch finish");
-        }
-       else if (stEvent.value == 1)
-	    {	
-		A.pressed = 1;
-		printf("touch start");
-        }
-       
+	{ 
+            read(fd, &stEvent , sizeof (stEvent));
+                if(stEvent.type == EV_ABS)
+                    { 
+                            if(stEvent.code == ABS_MT_POSITION_X){
+                                   printf("touch x: %d\r\n",stEvent.value);
+                            }
+                                    else if (stEvent.code ==ABS_MT_POSITION_Y)
+                                    {
 
-	    
-	msgsnd(msgID,&A, sizeof(TOUCH_MSG_T) - sizeof (long int) , 0);
-	}
+                                        printf("touch y: %d\r\n",stEvent.value);
+                                    }
+                    }
 
-}
 
-}
+                else if (stEvent.type == EV_SYN)
+                {
+                                printf("finish\r\n");
 
-int touchInit(void){
-	
+
+
+                }
+
+
+
+               }
+    }
+
+
+
+    int touchInit(void){
+	     
+        char touchPath[1024];
+
 	if (probeTouchPath(touchPath) == 0)
-	return 0;
+      {
+            printf(" open fail ");
+	         return 0;
+      }
 	fd=open (touchPath, O_RDONLY);
     msgID = msgget (MESSAGE_ID, IPC_CREAT|0666);
-    pthread_create(&touchTh_id, NULL, touchThFunc, NULL);
-    A.messageNum = 1;
+
+
+
+    BUTTON_MSG_T trashCan;
+    while(msgrcv (msgID, &trashCan, sizeof(BUTTON_MSG_T) - sizeof(long int),0,IPC_NOWAIT) >= 0)
+            { 
+               printf("cleaning message" );
+                } 
+       pthread_create(&touchTh_id ,NULL , touchThFunc, NULL);
 	return 1;
 }
 
 
 int touchExit(void)
-{
-	pthread_join(touchTh_id, NULL);
-	
-	close(fd);
-
-	return 1;
-}
+ {
+      pthread_cancel(touchTh_id);
+ }
