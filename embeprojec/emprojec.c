@@ -192,46 +192,72 @@ int baseballgame(void){
   	return 0;
 }
 
-int soccergame(void)
-{
-	int rand_num; // 랜덤하게 받아올 숫자
-    
+int select_ball_func (void)
+{	 
+	accInit(); // 가속도 센서 활성화 
+    getACC(); // 가속도 값 1초에 한 번씩 받아오기
 	
+	int ball_num = 0; // 사용자가 선택한 장소에 따라 번호 메기기
+	
+	BUTTON_MSG_T B;
+	int returnValue = 0;
+	int msgID = msgget (MESSAGE_ID, IPC_CREAT|0666);
+	
+	if (msgID == -1){
+	printf ("Cannot get msgQueueID, Return!\r\n");
+	return -1;
+	}
+
+	buttonInit();
+	
+	returnValue = msgrcv(msgID, &B, sizeof(unsigned short)*2 + sizeof(int), 0, 0);
+	
+	while (B.messageNum == EV_KEY && B.keyInput == KEY_VOLUME_DOWN && B.pressed) // 버튼이 눌릴 동안 동작
+	{	
+		if(accel[0]<왼쪽 && accel[2]<왼쪽 && accel[2]<왼쪽)
+		{
+			bitmainfunc("ballleft.bmp");
+			ball_num = 1;
+		}
+		else if(키트가 그대로 움직이면)
+		{
+			bitmainfunc("ballcenter.bmp");
+			ball_num = 2;
+		}
+		else(키트가 오른쪽으로 움직이면
+		{
+			bitaminfunc("ballright.bmp")
+			ball_num = 3;
+		}
+	}
+	
+	return ball_num; // 공 번호 반환해 주기
+
+}
+
+int soccergame(void)
+{    	
 	bitmainfunc("축구사진.bmp");
 	text("GAME START", "	");
 
 	//랜덤 3방향중에 한방향을 정해준다
-	
-    /*-------------------------------------*/	
-	//gyroInit(); // 자이로 말고 가속도계 써야 할 듯, 측정했는데 가속도센서가 더 정확함
-	//getGyro();
-    /*-------------------------------------*/
 
-    accInit();
-    getACC();
-	for(i=0; i<3; i++)
-	{ // 3판 돌리기
-    // 여기서부터	
-    if(accel[0]<왼쪽 && accel[2]<왼쪽 && accel[2]<왼쪽)
-		bitmainfunc("ballleft.bmp");
-	else if(자리오 스코프 앞으로 움직이면)
-		bitmainfunc("ballcenter.bmp");
-	else(자이로스코프 오른쪽으로 움직이면
-		bitaminfunc("ballright.bmp"); //이거를 자이로 함수한에 넣어야되나 아니면 메인문에 넣어야되나
-     // 여기까지 위에 부분은 따로 함수로 만들어서 선언해 주는 게 나을 듯? select_ball_func 이라거나,,, int return 시켜서 확정된 값을 받은 다음에 밑에 케이스 문으로 짜면 편할 거 같아
-	
-	int player_num; // 리턴 받을 사용자의 장소 번호
-    //if (버튼을 누르면) 위치 확정하기  
-	//if (버튼을 
+	for(i=0; i<3; i++) // 3판 돌리기
+	{ 
+	 /*----------------------------- 사용자의 최종 위치 받아오기 ---------------------- */
+		int player_num; // 리턴 받을 사용자의 장소 번호
+
+		player_num = select_ball_func(); // 사용자의 장소 최종 위치 불러오기
     
-	/*--------------------------- 랜덤한 위치 받아오기 -------------------- */
+	 /*--------------------------- 랜덤한 위치 받아오기 -------------------- */
 	
-	//srand(time(NULL)) --> 이 함수를 한 번 쓰셔서 그럼 굳이 다시 불러올 필요가 있나? 그냥 각 함수마다 안 넣고 메인문 안에다가 넣으면 될 거 같은데
+		int rand_num; // 랜덤하게 받아올 숫자
+		srand(time(NULL)) // --> 이 함수를 한 번 쓰셔서 그럼 굳이 다시 불러올 필요가 있나? 그냥 각 함수마다 안 넣고 메인문 안에다가 넣으면 될 거 같은데
 	
-	rand_num =rand() % 3; // 0, 1, 2 중 랜덤한 값을 무작위로 받아와서 저장하기
+		rand_num =rand() % 3 + 1; // 1, 2, 3 중 랜덤한 값을 무작위로 받아와서 저장하기
 
-	int soccerscore = 0; // 저장되는 점수값
-	/*---------------------------------------------------------------------*/
+	 /*---------------------------------점수 조정하기-----------------------------------*/
+		int soccerscore = 0; // 저장되는 점수값	
 
 		if (rand_num == player_num) // 게임 결과 비교 (승)
 		{
@@ -254,7 +280,8 @@ int soccergame(void)
 			}
 		}	
 
-	
+	}
+
 	text("Finish","	");
 	return 0;
-	}
+}
