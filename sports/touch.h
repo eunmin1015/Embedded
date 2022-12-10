@@ -11,7 +11,7 @@ typedef struct{
     int x;
     int y;
 
-} BUTTON_MSG_T;
+}TOUCH_MSG_T;
 
 int touchInit(void);
 int touchExit(void);
