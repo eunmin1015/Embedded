@@ -115,8 +115,8 @@ void touchThFunc(void* args)
 
 
 
-    BUTTON_MSG_T trashCan;
-    while(msgrcv (msgID, &trashCan, sizeof(BUTTON_MSG_T) - sizeof(long int),0,IPC_NOWAIT) >= 0)
+    TOUCH_MSG_T trashCan;
+    while(msgrcv (msgID, &trashCan, sizeof(TOUCH_MSG_T) - sizeof(long int),0,IPC_NOWAIT) >= 0)
             { 
                printf("cleaning message" );
                 } 
