@@ -37,11 +37,15 @@ int main(int argc, char* argv[]) {
 	
    
 	bitmainfunc("gamestart.bmp"); //메인 메뉴 사진을 띄운다.
-   touchInit();
+	touchInit();
     while(1)
+    {
+		 
+	}
 	
 	/*text("Game select", "");//
 	buttonStart();	
+	* 
    
 	while(1){
 		

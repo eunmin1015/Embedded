@@ -20,10 +20,10 @@
 #include "button.h"
 #include "buzzer.h"
 #include "textlcd.h"
-#include "ColorLed.h"
+#include "colorLed.h"
 #include "Temperature.h"
 #include "bitmap.h"
-#include "emprojec.h"
+#include "embe.h"
 
 BUTTON_MSG_T B;
 int msgID;

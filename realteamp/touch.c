@@ -20,7 +20,9 @@ int probeTouchPath(char *newPath)
     int returnValue = 0; //button에 해당하는 event#을 찾았나?
 	int number = 0; //찾았다면 여기에 집어넣자
 
-#define HAVE_TO_FIND_1 "N: Name=\"WaveShare WS170120\"\n"
+#define HAVE_TO_FIND_1 "N: Name=\"WaveShare WaveShare T"
+
+ouchscreen\"\n"
 #define HAVE_TO_FIND_2 "H: Handlers=mouse0 event"
    
     FILE *fp = fopen(PROBE_FILE,"rt");

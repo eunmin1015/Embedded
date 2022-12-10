@@ -34,5 +34,8 @@ int main(int argc, char* argv[]) {
 
     touchInit();
     while(1);
+    {
+		
+	}
 
 }
