@@ -23,6 +23,7 @@
 #include "ColorLed.h"
 #include "Temperature.h"
 #include "bitmap.h"
+#include "touch.h"
 #include "embe.h"
 
 int countOut;
@@ -32,11 +33,14 @@ BUTTON_MSG_T B;
 
 int main(int argc, char* argv[]) {
    
-	setInit(); //각종 기기들을 키고 log.txt 파일을 오픈하며 초기 설정을 해준다.
+	//setInit(); //각종 기기들을 키고 log.txt 파일을 오픈하며 초기 설정을 해준다.
 	
+   
 	bitmainfunc("gamestart.bmp"); //메인 메뉴 사진을 띄운다.
+   touchInit();
+    while(1)
 	
-	text("Game select", "");//
+	/*text("Game select", "");//
 	buttonStart();	
    
 	while(1){
@@ -66,7 +70,7 @@ int main(int argc, char* argv[]) {
 		}
 		}
 		
-	}
+	}*/
    
    return 0;
 }
